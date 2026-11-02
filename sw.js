@@ -1,5 +1,5 @@
 // Offline cache for Andaman to Hanoi 2027. Cache-first, refreshed in the background when online.
-const CACHE = 'a2h27-v1';
+const CACHE = 'a2h27-v3';
 const FILES = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './apple-touch-icon.png'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));

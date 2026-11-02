@@ -208,7 +208,7 @@ td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
    Thailand/Vietnam time (both UTC+7).
    ========================================================= */
 const START='2027-01-29', END='2027-02-20', TZ='+07:00';
-const SEEDV=2; // bump when seed data changes; unedited seed records are upgraded in place
+const SEEDV=3; // bump when seed data changes; unedited seed records are upgraded in place
 const LS='a2h27', LSL='a2h27-local';
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -229,6 +229,7 @@ const PLACES={
   lanta:{n:'Koh Lanta',c:'TH',island:1,w:'Peak dry season: sunny, ≈ 24–32 °C, calm Andaman Sea, water ≈ 28 °C — good dive visibility.'},
   mook:{n:'Koh Mook / Koh Kradan',c:'TH',island:1,w:'Dry season: sunny, ≈ 24–32 °C, flat seas. Check tide times for the Emerald Cave.'},
   ngai:{n:'Koh Ngai',c:'TH',island:1,w:'Dry season: sunny, ≈ 24–32 °C, calm, clear water off the beach.'},
+  phuket:{n:'Phuket',c:'TH',w:'Dry season: sunny, ≈ 25–33 °C. Evenings warm — good for the Sunday walking street.'},
   phiphi:{n:'Koh Phi Phi',c:'TH',island:1,w:'Dry season: sunny, ≈ 25–32 °C. Busy — boats are best before 09:00.'},
   railay:{n:'Railay',c:'TH',island:1,w:'Dry season: sunny, ≈ 25–33 °C. Boat-only access, tides affect landing.'},
   yaonoi:{n:'Koh Yao Noi',c:'TH',island:1,w:'Dry season: sunny, ≈ 24–32 °C, calm Phang Nga Bay.'},
@@ -261,7 +262,7 @@ function seed(){
   st('s_lanta','lanta','2027-01-30','2027-02-03',ALL,'Stay near Saladan / Long Beach (Phra Ae) — Phoenix Divers is in Saladan.','Island-hopping speedboats mostly leave in the morning; book the day before.');
   st('s_mook','mook','2027-02-03','2027-02-05',['A'],'Daniel joins today. Stay on Mook (Charlie Beach) or across on Kradan.','Longtails to Kuantungku pier until ≈ 16:00–17:00.');
   st('s_ngai','ngai','2027-02-05','2027-02-07',['A'],'Few resorts and it is Chinese New Year week — book early.','Speedboats leave late morning; nothing runs after dark.');
-  st('s_ppA','phiphi','2027-02-07','2027-02-08',['A'],'One night. Ferry to Phuket next morning.','Last ferries to Phuket / Krabi / Lanta ≈ 14:00–15:30.');
+  st('s_hkt','phuket','2027-02-07','2027-02-08',['A'],'One night before the 8 Feb flight. Stay near the airport (Nai Yang / Mai Khao, ≈ 15 min to HKT) for an easy morning, or in Old Phuket Town (≈ 45–60 min) for the Sunday walking street.');
   st('s_ppB','phiphi','2027-02-03','2027-02-05',['B'],'Meet Daniel here (he comes via the Phuket ferry).','Last ferries to Phuket / Krabi / Lanta ≈ 14:00–15:30.');
   st('s_rai','railay','2027-02-05','2027-02-06',['B'],'Boat-only peninsula. Stay Railay East (cheaper) or West (beach).','Longtails to Ao Nang run until about dusk.');
   st('s_yao','yaonoi','2027-02-06','2027-02-08',['B'],'Quiet, rural island. 30 min boat to Phuket (Bang Rong) for the 8 Feb flight.','Last boats to Phuket (Bang Rong) ≈ 17:00.');
@@ -284,10 +285,11 @@ function seed(){
   leg('2027-02-03',['A'],'taxi','Trang airport','Kuantungku pier','08:45','09:45','Taxi / airport minivan','≈ 800–1,000 THB','≈ 1 h.',DAN);
   leg('2027-02-03',['A'],'longtail','Kuantungku pier','Koh Mook','10:00','10:20','Longtail','≈ 100–200 THB','≈ 20 min.',DAN);
   leg('2027-02-05',['A'],'speedboat','Koh Mook','Koh Ngai','10:00','10:30','Speedboat','350 THB','≈ 30 min.');
-  leg('2027-02-07',['A'],'speedboat','Koh Ngai','Koh Lanta','10:00','10:30','Speedboat','≈ 400 THB','≈ 30 min. Connect to the Phi Phi ferry.');
-  leg('2027-02-07',['A'],'ferry','Koh Lanta','Koh Phi Phi','11:30','13:00','Ferry / speedboat','≈ 450–700 THB','');
-  leg('2027-02-08',['A'],'ferry','Koh Phi Phi','Phuket (Rassada pier)','09:00','11:00','Ferry','≈ 500–700 THB','≈ 2 h. Then taxi to the airport.');
-  leg('2027-02-08',['A'],'taxi','Rassada pier','Phuket airport (HKT)','11:15','12:15','Taxi / Grab','≈ 800–1,000 THB','≈ 45–60 min.');
+  n+=4; // ids of the old Phi Phi legs stay retired
+  const legX=(id,...a)=>{leg(...a);S.legs[S.legs.length-1].id=id;n--};
+  legX('l_hkt1','2027-02-07',['A'],'speedboat','Koh Ngai','Phuket (Rassada pier)','10:00','14:00','Island-hopping speedboat via Lanta / Phi Phi','≈ 1,800–2,500 THB','≈ 3.5–4 h with stops. Alternative: longtail to Pak Meng pier + private van to Phuket (≈ 4 h). Book a day or two ahead.');
+  legX('l_hkt2','2027-02-07',['A'],'taxi','Rassada pier','Phuket hotel','14:15','15:00','Taxi / Grab','≈ 500–1,000 THB','Depends on where you sleep.');
+  legX('l_hkt3','2027-02-08',['A'],'taxi','Phuket hotel','Phuket airport (HKT)','11:30','12:00','Taxi / Grab / hotel shuttle','≈ 200–800 THB','Be at HKT 2 h before the 14:10 flight.');
   // Route B
   leg('2027-02-03',['B'],'ferry','Koh Lanta','Koh Phi Phi','09:00','10:30','Ferry / speedboat','≈ 450–700 THB','',G3);
   leg('2027-02-03',['B'],'flight','Bangkok','Phuket (HKT)','07:00','08:25','Thai AirAsia / Thai Lion / Thai','≈ 1,200–2,500 THB','Daniel: early flight to catch a late-morning ferry.',DAN);
@@ -335,6 +337,12 @@ function seed(){
    ['ngai','g','Sunrise over the karsts','Ngai faces east: sunrise behind the Trang mainland limestone cliffs.','1 h'],
    ['ngai','g','Night swim with plankton','6 Feb is a new moon — darkest nights for bioluminescent plankton.','1 h'],
    ['ngai','g','Longtail to Koh Lao Liang','Twin karst islands with a tiny camp and great reefs.','Half day'],
+   ['phuket','c','Old Phuket Town','Sino-Portuguese shophouses on Thalang and Soi Romanee, cafes, street art.','2–3 h'],
+   ['phuket','c','Lard Yai Sunday walking street','7 Feb is a Sunday: Thalang Road turns into a night market with street food from ≈ 16:00.','Evening'],
+   ['phuket','c','Promthep Cape sunset','The island’s classic sunset point at the southern tip.','1–2 h'],
+   ['phuket','g','Nai Yang beach seafood','Quiet beach next to the airport with grilled-seafood shacks under the casuarinas.','Evening'],
+   ['phuket','g','Mai Khao plane spotting','Planes land just over your head at the north end of Mai Khao beach — 5 min from HKT.','1 h'],
+   ['phuket','g','Bang Pae waterfall & Khao Phra Thaeo','Short jungle walk in the national park, 20 min from the airport.','2 h'],
    ['phiphi','c','Viewpoint hike','Stairs up from Tonsai to the famous double-bay view. Small fee; go for sunset.','1–1.5 h'],
    ['phiphi','c','Maya Bay boardwalk','Phi Phi Leh — no swimming, boardwalk only. Go on the first boat.','Half day'],
    ['phiphi','c','Bamboo Island','White sand and shallow reef north of Phi Phi Don.','Half day'],
@@ -390,7 +398,7 @@ function seed(){
 
   const DIV=['t_a','t_k'];
   const items={
-    now:[['Book long-haul flights (arrive BKK 29 Jan, home 20 Feb — confirm)'],['Book DMK → Krabi (30 Jan, 15:55)',DIV],['Book early flight BKK → Trang (Route A) or Phuket (Route B), 3 Feb',['t_d']],['Book HKT → SGN (8 Feb) — mind the no-fly rule'],['Book SGN → DAD (10 Feb) — early, end of Tết'],['Book DAD → HAN (14 Feb)'],['Book HAN → BKK (17 Feb, morning)'],['Book Phoenix Divers (online ≥ 1 week ahead = 10% off)',DIV],['Book Koh Ngai and Phi Phi rooms early (few resorts, Chinese New Year week)']],
+    now:[['Book long-haul flights (arrive BKK 29 Jan, home 20 Feb — confirm)'],['Book DMK → Krabi (30 Jan, 15:55)',DIV],['Book early flight BKK → Trang (Route A) or Phuket (Route B), 3 Feb',['t_d']],['Book HKT → SGN (8 Feb) — mind the no-fly rule'],['Book SGN → DAD (10 Feb) — early, end of Tết'],['Book DAD → HAN (14 Feb)'],['Book HAN → BKK (17 Feb, morning)'],['Book Phoenix Divers (online ≥ 1 week ahead = 10% off)',DIV],['Book Koh Ngai and Phuket rooms early (Chinese New Year week)']],
     w6:[['Book all remaining accommodation'],['Travel insurance covering scuba to 18 m incl. hyperbaric chamber'],['Passport valid 6+ months after travel (until Aug 2027+)']],
     w3:[['Finish PADI eLearning',DIV],['Dive medical questionnaire (doctor’s signature if any “yes”)',DIV],['Vietnam e-visa if on an Austrian passport (evisa.gov.vn, entry SGN / exit HAN)'],['Spanish passport: visa-free 45 days in Vietnam — confirm, nothing to apply'],['eSIM for Thailand'],['eSIM for Vietnam'],['Install Grab + download offline maps for every stop']],
     last:[['Thailand Digital Arrival Card (TDAC) — within 3 days before arrival'],['TDAC again for the 17 Feb re-entry (submit 14–17 Feb)'],['Download all bookings offline (PDF / screenshots)'],['Cash in EUR / USD for exchange'],['Export this app and share the file in the group chat']],
@@ -430,7 +438,8 @@ function seed(){
   N('2027-02-02','PADI day 3: open-water dives 3 & 4 — certified!');
   N('2027-02-03','Spare dive day if weather cancelled a boat. Daniel joins on the islands.');
   N('2027-02-06','Lunar New Year (Tết / Chinese New Year). New moon — plankton night.');
-  N('2027-02-08','Fly Phuket → Ho Chi Minh City. Tết: expect closures.');
+  N('2027-02-07','Koh Ngai → Phuket by speedboat. One night in Phuket — Sunday walking street in Old Town.');
+  N('2027-02-08','Fly Phuket → Ho Chi Minh City 14:10. Tết: expect closures.');
   N('2027-02-10','Fly SGN → DAD. Packed transport (end of Tết). Order suits.');
   N('2027-02-14','Fly DAD → HAN. Pick up suits before leaving!');
   N('2027-02-17','Morning flight HAN → BKK. TDAC done?');
@@ -686,7 +695,7 @@ function vDive(){
   // log
   const lg=[...S.dives].sort((a,b)=>b.date.localeCompare(a.date));
   h+=`<div class="sec"><h3>Dive log</h3><button class="btn sm" data-a="addDive">+ Dive</button></div><div class="card">${lg.map(x=>`<div class="exp" data-a="editDive" data-id="${x.id}"><div class="md" style="font-size:20px">🤿</div><div class="grow"><b>${esc(x.site||'Dive')}</b> ${x.ex?'<span class="ex">EXAMPLE</span>':''}<div class="sm muted">${esc(fmtDay(x.date))} · ${esc(tn(x.diver))} · ${x.depth?esc(x.depth)+' m':''}${x.time?' · '+esc(x.time)+' min':''}${x.buddy?' · buddy '+esc(x.buddy):''}</div>${x.saw?`<div class="sm">${esc(x.saw)}</div>`:''}</div></div>`).join('')||'<div class="empty">No dives logged yet</div>'}</div>`;
-  h+=`<div class="sec"><h3>For Daniel</h3></div><div class="card acc th"><b>${esc(c.dsd||'Discover Scuba')}</b><p class="sm" style="margin:6px 0 0">One supervised dive to max 12 m, no certification needed. ${route()==='A'?'On Route A Daniel never reaches Lanta — ask a dive shop on Koh Mook or Koh Ngai, or book a try-dive from Phi Phi on 7 Feb (still ≥ 24 h before the 8 Feb flight).':'On Route B he is on Phi Phi 3–5 Feb — plenty of shops offer try-dives there.'}</p><div class="verify" style="margin-top:6px">Price range — verify locally</div></div>`;
+  h+=`<div class="sec"><h3>For Daniel</h3></div><div class="card acc th"><b>${esc(c.dsd||'Discover Scuba')}</b><p class="sm" style="margin:6px 0 0">One supervised dive to max 12 m, no certification needed. ${route()==='A'?'On Route A Daniel never reaches Lanta — ask a dive shop on Koh Mook or Koh Ngai, before 6 Feb — a try-dive needs ≥ 24 h before the 8 Feb flight.':'On Route B he is on Phi Phi 3–5 Feb — plenty of shops offer try-dives there.'}</p><div class="verify" style="margin-top:6px">Price range — verify locally</div></div>`;
   return h;
 }
 
