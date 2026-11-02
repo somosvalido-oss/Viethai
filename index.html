@@ -208,6 +208,7 @@ td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
    Thailand/Vietnam time (both UTC+7).
    ========================================================= */
 const START='2027-01-29', END='2027-02-20', TZ='+07:00';
+const SEEDV=2; // bump when seed data changes; unedited seed records are upgraded in place
 const LS='a2h27', LSL='a2h27-local';
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -245,18 +246,17 @@ const GROUPS=[
   {k:'last',n:'Last days',due:'2027-01-28'},
   {k:'pack',n:'Packing',due:'2027-01-28'}];
 const DIVE_ITEMS=[['el','eLearning finished'],['med','Medical questionnaire (doctor’s signature if any “yes”)'],['ins','Dive insurance'],['log','Logbook']];
-const CATS=['Accommodation','Transport','Diving','Food & drink','Tours & activities','Shopping & suits','Other'];
+const CATS=['Accommodation','Transport','Long-haul flights','Diving','Food & drink','Tours & activities','Shopping & suits','Other'];
 
 /* ---------------- Seed data ---------------- */
 function seed(){
-  const S={schema:1,travellers:[],stops:[],legs:[],ideas:[],dives:[],expenses:[],items:[],budget:[],checks:{},notes:{},blobs:{},del:{}};
+  const S={schema:1,seedV:SEEDV,travellers:[],stops:[],legs:[],ideas:[],dives:[],expenses:[],items:[],budget:[],checks:{},notes:{},blobs:{},del:{}};
   const ALL=['A','B'];
   S.travellers=[
-    {id:'t_a',o:1,name:'Alessandro',from:START,to:END,diver:'yes',u:0},
-    {id:'t_k',o:2,name:'Kris',from:START,to:END,diver:'yes',u:0},
-    {id:'t_j',o:3,name:'Jugo',from:START,to:END,diver:'yes',u:0},
-    {id:'t_d',o:4,name:'Daniel',from:'2027-02-03',to:END,diver:'no',u:0}];
-  const st=(id,place,from,to,routes,notes,lastBoat='')=>S.stops.push({id,place,name:PLACES[place].n,from,to,routes,notes,lastBoat,acc:'',addr:'',ref:'',checkin:'',phone:'',u:0});
+    {id:'t_a',o:1,name:'Alessandro',from:START,to:END,diver:'yes',u:SEEDV},
+    {id:'t_k',o:2,name:'Kris',from:START,to:END,diver:'yes',u:SEEDV},
+    {id:'t_d',o:4,name:'Daniel',from:'2027-02-03',to:END,diver:'no',u:SEEDV}];
+  const st=(id,place,from,to,routes,notes,lastBoat='')=>S.stops.push({id,place,name:PLACES[place].n,from,to,routes,notes,lastBoat,acc:'',addr:'',ref:'',checkin:'',phone:'',status:'to book',u:SEEDV});
   st('s_bkk1','bkk','2027-01-29','2027-01-30',ALL,'Arrival, rest, sleep off jet lag. Stay near the airport rail link or the river for an easy 30 Jan departure.');
   st('s_lanta','lanta','2027-01-30','2027-02-03',ALL,'Stay near Saladan / Long Beach (Phra Ae) — Phoenix Divers is in Saladan.','Island-hopping speedboats mostly leave in the morning; book the day before.');
   st('s_mook','mook','2027-02-03','2027-02-05',['A'],'Daniel joins today. Stay on Mook (Charlie Beach) or across on Kradan.','Longtails to Kuantungku pier until ≈ 16:00–17:00.');
@@ -271,11 +271,13 @@ function seed(){
   st('s_bkk2','bkk','2027-02-17','2027-02-20',ALL,'Fly home 20 Feb (confirm date). 20 Feb is a Saturday — Chatuchak morning possible.');
 
   let n=0;
-  const leg=(date,routes,mode,from,to,dep,arr,operator,price,notes,who=[])=>S.legs.push({id:'l_'+(++n),date,routes,mode,from,to,dep,arr,operator,price,ref:'',status:'to book',who,notes,u:0});
-  const G3=['t_a','t_k','t_j'], DAN=['t_d'];
-  leg('2027-01-29',ALL,'flight','Home','Bangkok (BKK)','','','','','Long-haul. Kris & Jugo from Vienna.',G3);
-  leg('2027-01-30',ALL,'flight','Bangkok','Krabi (KBV)','12:00','13:20','Thai AirAsia / Thai Lion / Nok','≈ 1,200–2,500 THB','Midday flight. If you land at DMK, allow extra time.',G3);
-  leg('2027-01-30',ALL,'van','Krabi airport','Koh Lanta (Saladan)','14:00','16:30','Shared or private van','≈ 450 THB pp shared','≈ 2.5 h incl. two short car ferries.',G3);
+  const leg=(date,routes,mode,from,to,dep,arr,operator,price,notes,who=[])=>S.legs.push({id:'l_'+(++n),date,routes,mode,from,to,dep,arr,operator,price,ref:'',status:'to book',who,notes,u:SEEDV});
+  const G3=['t_a','t_k'], DAN=['t_d'], AL=['t_a'], KR=['t_k'];
+  leg('2027-01-28',ALL,'flight','Madrid (MAD T4S)','Doha (DOH)','22:25','06:50','Iberia IB6136, operated by Qatar Airways','€672.97 return','Departs Thu 28 Jan Madrid time; lands Doha 29 Jan 06:50. 23 kg hold bag + 10 kg cabin.',AL);
+  leg('2027-01-29',ALL,'flight','Doha (DOH)','Bangkok (BKK)','09:10','19:25','Iberia IB6332, operated by Qatar Airways','incl. in return fare','Lands Suvarnabhumi 19:25.',AL);
+  leg('2027-01-29',ALL,'flight','Vienna','Bangkok','','','','','Kris: add your flight details.',KR);
+  leg('2027-01-30',ALL,'flight','Bangkok Don Mueang (DMK T2)','Krabi (KBV)','15:55','17:20','Thai AirAsia FD3223','MYR 555.07 for 2','Seats 33F + 34F, 15 kg checked bag each. Leaves from DMK, not BKK.',G3);
+  leg('2027-01-30',ALL,'van','Krabi airport','Koh Lanta (Saladan)','17:45','20:15','Shared or private van','≈ 450 THB pp shared','≈ 2.5 h incl. car ferry. Evening arrival — pre-book the transfer.',G3);
   // Route A
   leg('2027-02-03',['A'],'speedboat','Koh Lanta','Koh Mook','09:30','10:15','Island-hopping speedboat','≈ 900 THB','≈ 45 min. If 3 Feb is needed as spare dive day, take an afternoon boat instead.',G3);
   leg('2027-02-03',['A'],'flight','Bangkok','Trang (TST)','07:00','08:30','Nok Air / Thai AirAsia','≈ 1,200–2,500 THB','Daniel: take the earliest flight so you make the longtail in daylight.',DAN);
@@ -303,6 +305,16 @@ function seed(){
   leg('2027-02-17',ALL,'flight','Hanoi (HAN)','Bangkok (BKK / DMK)','08:00','10:00','VietJet / Thai AirAsia / Vietnam Airlines','≈ €60–150','Morning flight. Submit the TDAC before landing.');
   leg('2027-02-20',ALL,'flight','Bangkok (BKK)','Home','','','','','Long-haul home — confirm the date.');
 
+  const setLeg=(id,o)=>Object.assign(S.legs.find(l=>l.id===id),o);
+  setLeg('l_1',{ref:'7J2ELY',status:'paid'});setLeg('l_2',{ref:'7J2ELY',status:'paid'});
+  setLeg('l_4',{ref:'EDC5MZ',status:'paid'});
+  const lastL=S.legs[S.legs.length-1];Object.assign(lastL,{from:'Bangkok (BKK)',to:'Doha (DOH)',dep:'09:45',arr:'13:05',operator:'Iberia IB6174, operated by Qatar Airways',price:'incl. in return fare',ref:'7J2ELY',status:'paid',who:AL,notes:'Then IB6137 Doha 15:25 → Madrid 20:55 (T4S).'});
+  const setStop=(id,o)=>Object.assign(S.stops.find(x=>x.id===id),o);
+  setStop('s_mook',{acc:'The Tropical Koh Mook',addr:'Tambon Ko Libong, 92110 Koh Mook',ref:'Booking.com 5773799079',checkin:'14:00',phone:'+66 89 938 8980',status:'booked',
+    notes:'2 rooms (Superior Double + Standard Bungalow), 3 adults, breakfast included. THB 8,248.33 NOT PAID yet — Booking.com charges the card automatically. Free cancellation until 19 Jan 2027. Tell the property your arrival time.'});
+  setStop('s_ngai',{acc:'Thapwarin Resort – Green Hotel',addr:'117 Moo 4, Lanta Yai, Krabi 81150, Ko Ngai',ref:'Booking.com 5612238451',checkin:'14:00',phone:'+66 81 894 3585',status:'paid',
+    notes:'Beach Front Cottage, 3 adults, breakfast included. Paid THB 14,396.34 (non-refundable). Bring the card used to pay + passport to check-in. Check-out by 12:00.'});
+  setStop('s_bkk1',{notes:'Alessandro lands BKK 19:25. The Krabi flight next day leaves from Don Mueang (DMK) at 15:55 — sleep near DMK or in town, relaxed morning.'});
   const ideas=[
    ['lanta','c','Lanta Old Town','Stilted wooden shophouses on the east coast, seafood over the water.','2–3 h'],
    ['lanta','c','Mu Ko Lanta National Park lighthouse','Southern tip: lighthouse, Tanod Bay, short nature trail. Park fee; watch your food — monkeys.','Half day'],
@@ -374,40 +386,45 @@ function seed(){
    ['bkk','g','Talat Noi','Old riverside quarter: street art, Chinese shrines, cafes.','2 h'],
    ['bkk','g','Bang Krachao bike ride','The “green lung” — cycle elevated paths through jungle across the river.','Half day']];
   const cnt={};
-  ideas.forEach(([place,kind,title,desc,time])=>{cnt[place]=(cnt[place]||0)+1;S.ideas.push({id:`i_${place}_${cnt[place]}`,place,kind,title,desc,time,want:false,done:false,u:0})});
+  ideas.forEach(([place,kind,title,desc,time])=>{cnt[place]=(cnt[place]||0)+1;S.ideas.push({id:`i_${place}_${cnt[place]}`,place,kind,title,desc,time,want:false,done:false,u:SEEDV})});
 
-  const DIV=['t_a','t_k','t_j'];
+  const DIV=['t_a','t_k'];
   const items={
-    now:[['Book long-haul flights (arrive BKK 29 Jan, home 20 Feb — confirm)'],['Book BKK → Krabi (30 Jan, midday)',DIV],['Book early flight BKK → Trang (Route A) or Phuket (Route B), 3 Feb',['t_d']],['Book HKT → SGN (8 Feb) — mind the no-fly rule'],['Book SGN → DAD (10 Feb) — early, end of Tết'],['Book DAD → HAN (14 Feb)'],['Book HAN → BKK (17 Feb, morning)'],['Book Phoenix Divers (online ≥ 1 week ahead = 10% off)',DIV],['Book Koh Ngai and Phi Phi rooms early (few resorts, Chinese New Year week)']],
+    now:[['Book long-haul flights (arrive BKK 29 Jan, home 20 Feb — confirm)'],['Book DMK → Krabi (30 Jan, 15:55)',DIV],['Book early flight BKK → Trang (Route A) or Phuket (Route B), 3 Feb',['t_d']],['Book HKT → SGN (8 Feb) — mind the no-fly rule'],['Book SGN → DAD (10 Feb) — early, end of Tết'],['Book DAD → HAN (14 Feb)'],['Book HAN → BKK (17 Feb, morning)'],['Book Phoenix Divers (online ≥ 1 week ahead = 10% off)',DIV],['Book Koh Ngai and Phi Phi rooms early (few resorts, Chinese New Year week)']],
     w6:[['Book all remaining accommodation'],['Travel insurance covering scuba to 18 m incl. hyperbaric chamber'],['Passport valid 6+ months after travel (until Aug 2027+)']],
     w3:[['Finish PADI eLearning',DIV],['Dive medical questionnaire (doctor’s signature if any “yes”)',DIV],['Vietnam e-visa if on an Austrian passport (evisa.gov.vn, entry SGN / exit HAN)'],['Spanish passport: visa-free 45 days in Vietnam — confirm, nothing to apply'],['eSIM for Thailand'],['eSIM for Vietnam'],['Install Grab + download offline maps for every stop']],
     last:[['Thailand Digital Arrival Card (TDAC) — within 3 days before arrival'],['TDAC again for the 17 Feb re-entry (submit 14–17 Feb)'],['Download all bookings offline (PDF / screenshots)'],['Cash in EUR / USD for exchange'],['Export this app and share the file in the group chat']],
     pack:[['Reef-safe sunscreen'],['Dry bag'],['Swimwear'],['Rash guard'],['Sandals'],['Temple clothes (shoulders and knees covered)'],['Light rain jacket'],['Warm layer for Hanoi (≈ 14–19 °C, drizzle)'],['Motion-sickness tablets'],['Plug adapters (TH: A/B/C/O · VN: A/C)']]};
   let ci=0;
-  for(const g in items) items[g].forEach(([text,only])=>S.items.push({id:'c_'+(++ci),group:g,text,only:only||[],o:ci,u:0}));
+  for(const g in items) items[g].forEach(([text,only])=>S.items.push({id:'c_'+(++ci),group:g,text,only:only||[],o:ci,u:SEEDV}));
 
   S.budget=[
-    {id:'b_acc',cat:'Accommodation',lo:500,hi:1050,note:'22 nights, 2 per room',u:0},
-    {id:'b_tr',cat:'Transport',lo:450,hi:900,note:'Excluding long-haul flights',u:0},
-    {id:'b_dv',cat:'Diving',lo:365,hi:400,note:'PADI course ≈ €365 + national park fees',u:0},
-    {id:'b_fd',cat:'Food & drink',lo:0,hi:0,note:'Not in the estimate — set your own',u:0},
-    {id:'b_to',cat:'Tours & activities',lo:0,hi:0,note:'Not in the estimate — set your own',u:0},
-    {id:'b_sh',cat:'Shopping & suits',lo:0,hi:0,note:'Not in the estimate — set your own',u:0},
-    {id:'b_ot',cat:'Other',lo:0,hi:0,note:'',u:0}];
+    {id:'b_acc',cat:'Accommodation',lo:500,hi:1050,note:'22 nights, 2 per room',u:SEEDV},
+    {id:'b_tr',cat:'Transport',lo:450,hi:900,note:'Excluding long-haul flights',u:SEEDV},
+    {id:'b_lh',cat:'Long-haul flights',lo:0,hi:0,note:'Not in the estimate',u:SEEDV},
+    {id:'b_dv',cat:'Diving',lo:365,hi:400,note:'PADI course ≈ €365 + national park fees',u:SEEDV},
+    {id:'b_fd',cat:'Food & drink',lo:0,hi:0,note:'Not in the estimate — set your own',u:SEEDV},
+    {id:'b_to',cat:'Tours & activities',lo:0,hi:0,note:'Not in the estimate — set your own',u:SEEDV},
+    {id:'b_sh',cat:'Shopping & suits',lo:0,hi:0,note:'Not in the estimate — set your own',u:SEEDV},
+    {id:'b_ot',cat:'Other',lo:0,hi:0,note:'',u:SEEDV}];
 
-  S.dives=[{id:'dv_ex',ex:true,date:'2027-02-01',diver:'t_a',site:'Koh Haa Lagoon (example)',depth:12,time:45,buddy:'Kris',saw:'Example entry — clownfish, moray eel, blue-spotted ray',u:0}];
-  S.expenses=[{id:'e_ex',ex:true,desc:'Example: seafood dinner, Old Town',amt:1800,cur:'THB',paid:'t_a',split:['t_a','t_k','t_j'],cat:'Food & drink',date:'2027-01-31',country:'TH',notes:'',u:0}];
+  S.dives=[{id:'dv_ex',ex:true,date:'2027-02-01',diver:'t_a',site:'Koh Haa Lagoon (example)',depth:12,time:45,buddy:'Kris',saw:'Example entry — clownfish, moray eel, blue-spotted ray',u:SEEDV}];
+  S.expenses=[
+    {id:'e_iberia',desc:'Iberia/Qatar MAD ⇄ BKK return (Alessandro)',amt:672.97,cur:'EUR',paid:'t_a',split:['t_a'],cat:'Long-haul flights',date:START,country:'Other',notes:'Booking 7J2ELY. Personal — not shared.',u:SEEDV},
+    {id:'e_airasia',desc:'AirAsia DMK → Krabi, 2 seats',amt:113,cur:'EUR',paid:'t_a',split:['t_a','t_k'],cat:'Transport',date:'2027-01-30',country:'TH',notes:'Booking EDC5MZ. Paid MYR 555.07 — the € amount is an estimate (≈ 4.9 MYR/€); correct it from your card statement.',u:SEEDV},
+    {id:'e_ngai',desc:'Thapwarin Resort, Koh Ngai (2 nights)',amt:14396.34,cur:'THB',paid:'t_a',split:['t_a','t_k','t_d'],cat:'Accommodation',date:'2027-02-05',country:'TH',notes:'Booking.com 5612238451, paid in full.',u:SEEDV}];
 
-  const B=(k,v)=>S.blobs[k]={v,u:0};
+  ['c_1:t_a','c_2:t_a','c_2:t_k'].forEach(k=>S.checks[k]={v:true,u:SEEDV});
+  const B=(k,v)=>S.blobs[k]={v,u:SEEDV};
   B('route','A');
   B('rates',{THB:37,VND:30000,updated:'Nov 2026 (seed)'});
   B('cbudget',{TH:1100,VN:700});
   B('nofly',{last:'',days:3,multi:true});
   B('course',{shop:'Phoenix Divers',where:'Saladan, Koh Lanta',price:'PADI Open Water 13,500 THB',discount:'10% off if booked online ≥ 1 week ahead',includes:'eLearning, gear, boat lunch, hotel pickup',extra:'National park fees extra',ratio:'Max 3 students per instructor',fun:'Optional extra dive at Hin Daeng / Hin Muang: 900 THB',phone:'+66 99 232 5319',schedule:'31 Jan pool · 1–2 Feb four open-water dives · 3 Feb spare day if weather cancels a boat',ref:'',dsd:'Discover Scuba try-dive ≈ 3,500–5,500 THB'});
   B('info',{});
-  const N=(d,v)=>S.notes[d]={v,u:0};
-  N('2027-01-29','Arrival, rest, sleep off jet lag.');
-  N('2027-01-30','Fly BKK → Krabi midday, van to Lanta (≈ 2.5 h). Early night — dive course tomorrow.');
+  const N=(d,v)=>S.notes[d]={v,u:SEEDV};
+  N('2027-01-29','Alessandro lands BKK 19:25 (Qatar via Doha). Rest, sleep off jet lag.');
+  N('2027-01-30','Thai AirAsia FD3223 DMK 15:55 → Krabi 17:20, then van to Lanta (≈ 2.5 h, arrive ≈ 20:00). Dive course tomorrow.');
   N('2027-01-31','PADI day 1: pool / confined water with Phoenix Divers.');
   N('2027-02-01','PADI day 2: open-water dives 1 & 2 (boat).');
   N('2027-02-02','PADI day 3: open-water dives 3 & 4 — certified!');
@@ -417,7 +434,7 @@ function seed(){
   N('2027-02-10','Fly SGN → DAD. Packed transport (end of Tết). Order suits.');
   N('2027-02-14','Fly DAD → HAN. Pick up suits before leaving!');
   N('2027-02-17','Morning flight HAN → BKK. TDAC done?');
-  N('2027-02-20','Fly home (confirm date).');
+  N('2027-02-20','Alessandro: IB6174 BKK 09:45 → Doha → Madrid 20:55. Be at BKK by 06:45.');
   return S;
 }
 
@@ -429,6 +446,7 @@ function load(){
   try{S=JSON.parse(localStorage.getItem(LS))}catch(e){S=null}
   if(!S||S.schema!==1)S=seed();
   for(const c of COLS)S[c]=S[c]||[];for(const m of MAPS)S[m]=S[m]||{};S.del=S.del||{};
+  if((S.seedV||1)<SEEDV){upgradeSeed(S);persist()}
   try{L=JSON.parse(localStorage.getItem(LSL))||{}}catch(e){L={}}
   L.tab=L.tab||'today';L.money=L.money||'exp';L.viewAs=L.viewAs||'t_a';
 }
@@ -464,6 +482,16 @@ function fmt(n,c='EUR'){n=+n||0;if(n<0)return '−'+fmt(-n,c);if(c==='EUR')retur
 const fmtE=n=>'€'+Math.round(+n||0).toLocaleString('en-GB');
 function expCountry(e){if(e.country&&e.country!=='auto')return e.country;return ctry(dayStop(e.date))}
 
+/* Replace seed records nobody has edited (u is a small seed number, not a timestamp) with the current seed. */
+function upgradeSeed(X){
+  const n=seed(),isSeed=o=>(o?.u||0)<1e6;
+  for(const c of COLS){const ids=new Set(n[c].map(x=>x.id));
+    X[c]=(X[c]||[]).filter(x=>{if(!ids.has(x.id)&&isSeed(x)){X.del[x.id]=Math.max(X.del[x.id]||0,SEEDV);return false}return true});
+    for(const x of n[c]){const i=X[c].findIndex(y=>y.id===x.id);if(i<0)X[c].push(x);else if(isSeed(X[c][i]))X[c][i]=x}}
+  for(const mp of MAPS)for(const k in n[mp])if(!X[mp][k]||isSeed(X[mp][k]))X[mp][k]=n[mp][k];
+  X.seedV=SEEDV;
+}
+
 /* ---------------- Merge (sync) ---------------- */
 function merge(a,b){
   const out=JSON.parse(JSON.stringify(a));const del={...(a.del||{})};
@@ -472,7 +500,7 @@ function merge(a,b){
     (b[c]||[]).forEach(x=>{const y=m.get(x.id);if(!y||(x.u||0)>(y.u||0))m.set(x.id,x)});
     out[c]=[...m.values()].filter(x=>!(del[x.id]>=(x.u||0)))}
   for(const mp of MAPS){out[mp]={...(a[mp]||{})};for(const k in b[mp]||{}){const y=out[mp][k];if(!y||(b[mp][k].u||0)>(y.u||0))out[mp][k]=b[mp][k]}}
-  out.del=del;return out;
+  out.del=del;out.seedV=Math.max(a.seedV||1,b.seedV||1);return out;
 }
 
 /* ---------------- UI helpers ---------------- */
@@ -518,6 +546,7 @@ function routeSeg(){const r=route();return `<div class="seg" role="tablist" aria
   <button class="${r==='A'?'on':''}" data-a="route" data-v="A">A · Mook &amp; Ngai</button>
   <button class="${r==='B'?'on':''}" data-a="route" data-v="B">B · Railay &amp; Yao Noi</button></div>`}
 function stChip(l){const k=(l.status||'to book').replace(' ','');return `<button class="st st-${k}" data-a="status" data-id="${l.id}" aria-label="Status ${esc(l.status)}, tap to change">${esc(l.status||'to book')}</button>`}
+function stayChip(s){const k=(s.status||'to book').replace(' ','');return `<button class="st st-${k}" data-a="stayStatus" data-id="${s.id}" aria-label="Stay status ${esc(s.status||'to book')}, tap to change">${esc(s.status||'to book')}</button>`}
 function whoTag(l){if(!l.who||!l.who.length||l.who.length>=S.travellers.length)return '';return ` <span class="who">${l.who.map(tn).map(esc).join(' + ')}</span>`}
 function legRow(l,showDate){
   return `<div class="leg"><div class="md" aria-hidden="true">${MODES[l.mode]||'•'}</div><div class="lt" data-a="editLeg" data-id="${l.id}">
@@ -570,7 +599,7 @@ function vToday(){
     const moving=prev&&ns&&prev.id!==ns.id;
     h+=`<div class="card hero ${cls(c)}"><div class="kicker">Day ${dayNo(d)} of ${days.length} · ${esc(fmtDay(d))} · ${c==='VN'?'Vietnam':'Thailand'}</div>
     <h2>${moving?esc(prev.name)+' → '+esc(ns.name):esc(s.name)}</h2>
-    ${ns?`<div>Tonight: <b>${esc(ns.acc||'accommodation not set')}</b>${ns.checkin?' · check-in '+esc(ns.checkin):''}</div>
+    ${ns?`<div>Tonight: <b>${esc(ns.acc||'accommodation not set')}</b>${ns.checkin?' · check-in '+esc(ns.checkin):''} ${stayChip(ns)}</div>${ns.ref?`<div class="sm">Ref ${esc(ns.ref)}</div>`:''}
      <div class="row" style="margin-top:8px"><a class="btn sm" target="_blank" rel="noopener" href="${maps((ns.acc?ns.acc+' ':'')+(ns.addr||ns.name))}">Map</a>${ns.phone?`<a class="btn sm" href="tel:${esc(ns.phone.replace(/\s/g,''))}">Call</a>`:''}<button class="btn sm" data-a="editStop" data-id="${ns.id}">Edit stay</button></div>`:'<div><b>Departure day</b> — fly home.</div>'}
     ${note(d)?`<p style="margin:10px 0 0">${esc(note(d))}</p>`:''}</div>`;
     h+=warnings(d).map(banner).join('');
@@ -592,17 +621,19 @@ function vTrip(){
   const d0=curDate();
   let h=routeSeg()+`<div class="legend"><span style="--c:var(--th)">Thailand</span><span style="--c:var(--vn)">Vietnam</span><span>Tap a pill: to book → booked → paid</span></div>`;
   const all=legs();const tb=all.filter(l=>l.status==='to book').length,bk=all.filter(l=>l.status==='booked').length,pd=all.filter(l=>l.status==='paid').length;
-  h+=`<div class="card"><div class="row"><b class="grow">Transport</b><span class="sm muted">${pd} paid · ${bk} booked · ${tb} to book</span></div><div class="bar" style="margin-top:8px"><i style="width:${all.length?Math.round((pd+bk)/all.length*100):0}%"></i></div></div>`;
+  const ss=stops(),sp=ss.filter(x=>x.status==='paid').length,sb=ss.filter(x=>x.status==='booked').length;
+  h+=`<div class="card"><div class="row"><b class="grow">Transport</b><span class="sm muted">${pd} paid · ${bk} booked · ${tb} to book</span></div><div class="bar" style="margin-top:8px"><i style="width:${all.length?Math.round((pd+bk)/all.length*100):0}%"></i></div>
+  <div class="row" style="margin-top:12px"><b class="grow">Stays</b><span class="sm muted">${sp} paid · ${sb} booked · ${ss.length-sp-sb} to book</span></div><div class="bar" style="margin-top:8px"><i style="width:${ss.length?Math.round((sp+sb)/ss.length*100):0}%"></i></div></div>`;
   if(d0>=START&&d0<=END)h+=`<button class="btn full" style="margin-bottom:12px" data-a="jump">Jump to today</button>`;
   for(const d of days){
     const s=dayStop(d),ns=nightStop(d);const c=ctry(s);
     const starts=stops().find(x=>x.from===d);
-    const tl=all.filter(l=>l.date===d);
+    const tl=all.filter(l=>l.date===d||(d===START&&l.date<START));
     const nightIdx=ns?Math.round((D(d)-D(ns.from))/864e5)+1:0,nights=ns?Math.round((D(ns.to)-D(ns.from))/864e5):0;
     h+=`<div class="day ${cls(c)} ${d===d0?'today':''}" id="d-${d}"><div class="card">
     <div class="dhead"><h4>${esc(fmtDay(d,{weekday:'short',day:'numeric',month:'short'}))}</h4><span class="kicker">Day ${dayNo(d)}</span></div>
     <a class="place" target="_blank" rel="noopener" href="${maps(s.name)}">${esc(s.name)}</a> ${ns?`<span class="xs muted">· night ${nightIdx}/${nights}</span>`:'<span class="xs muted">· fly home</span>'}
-    ${starts?`<div class="acc-box"><div class="row"><b class="grow">${esc(starts.acc||'Accommodation — tap Edit')}</b><button class="btn sm" data-a="editStop" data-id="${starts.id}">Edit</button></div>
+    ${starts?`<div class="acc-box"><div class="row"><b class="grow">${esc(starts.acc||'Accommodation — tap Edit')}</b>${stayChip(starts)}<button class="btn sm" data-a="editStop" data-id="${starts.id}">Edit</button></div>
       ${starts.addr?`<div><a target="_blank" rel="noopener" href="${maps(starts.acc+' '+starts.addr)}">${esc(starts.addr)}</a></div>`:''}
       <div class="k">${['ref','checkin','phone'].map(k=>starts[k]?({ref:'Ref ',checkin:'Check-in ',phone:'☎ '}[k])+esc(starts[k]):'').filter(Boolean).join(' · ')||'No booking details yet'} · ${Math.round((D(starts.to)-D(starts.from))/864e5)} night(s), out ${esc(fmtDay(starts.to))}</div>
       ${starts.notes?`<div style="margin-top:4px">${esc(starts.notes)}</div>`:''}</div>`:''}
@@ -792,8 +823,8 @@ function stageImport(txt){
 /* ---------------- Text exports ---------------- */
 function textFor(k){
   if(k==='settle')return settleText();
-  if(k==='itin'){let t=`ANDAMAN → HANOI 2027 · Route ${route()}\n`;for(const d of days){const s=dayStop(d),st=stops().find(x=>x.from===d);t+=`\n${fmtDay(d)} — ${s.name}`;if(st)t+=` (${Math.round((D(st.to)-D(st.from))/864e5)} n${st.acc?', '+st.acc:''}${st.ref?', ref '+st.ref:''})`;
-    legs().filter(l=>l.date===d).forEach(l=>t+=`\n  ${MODES[l.mode]||'•'} ${l.from} → ${l.to}${l.dep?' '+l.dep:''}${l.operator?' · '+l.operator:''} [${l.status}]${l.who.length&&l.who.length<S.travellers.length?' ('+l.who.map(tn).join(', ')+')':''}`);if(note(d))t+=`\n  ✎ ${note(d)}`}return t+'\n\n(times/prices: verify before travel)'}
+  if(k==='itin'){let t=`ANDAMAN → HANOI 2027 · Route ${route()}\n`;for(const d of days){const s=dayStop(d),st=stops().find(x=>x.from===d);t+=`\n${fmtDay(d)} — ${s.name}`;if(st)t+=` (${Math.round((D(st.to)-D(st.from))/864e5)} n${st.acc?', '+st.acc:''}${st.ref?', ref '+st.ref:''} [${st.status||'to book'}])`;
+    legs().filter(l=>l.date===d||(d===START&&l.date<START)).forEach(l=>t+=`\n  ${MODES[l.mode]||'•'} ${l.from} → ${l.to}${l.dep?' '+l.dep:''}${l.operator?' · '+l.operator:''} [${l.status}]${l.who.length&&l.who.length<S.travellers.length?' ('+l.who.map(tn).join(', ')+')':''}`);if(note(d))t+=`\n  ✎ ${note(d)}`}return t+'\n\n(times/prices: verify before travel)'}
   if(k==='today'){const d=curDate();if(d<START||d>END)return `Andaman → Hanoi: ${Math.round((D(START)-D(d))/864e5)} days to go!`;const s=dayStop(d),ns=nightStop(d);let t=`${fmtDay(d)} · Day ${dayNo(d)} · ${s.name}\nTonight: ${ns?(ns.acc||ns.name)+(ns.addr?', '+ns.addr:''):'fly home'}`;
     legs().filter(l=>l.date===d).forEach(l=>t+=`\n${MODES[l.mode]||'•'} ${l.from} → ${l.to} ${l.dep||''} [${l.status}]`);if(note(d))t+='\n'+note(d);warnings(d).forEach(w=>t+=`\n${w[1]} ${w[2]}`);return t}
   if(k==='budget'){const {share}=balances();let t='Budget — spent per person (EUR)\n';T().forEach(p=>{const tot=Object.values(share[p.id]||{}).reduce((a,b)=>a+b,0);t+=`${p.name}: ${fmt(tot)}\n`});return t}
@@ -813,7 +844,7 @@ function legForm(l,isNew){openForm(isNew?'Add transport':'Edit transport',[
   {k:'notes',l:'Notes',t:'textarea'}],l,v=>{const o={...l,...v};if(o.who.length===S.travellers.length)o.who=[];if(!o.routes.length)o.routes=['A','B'];upsert('legs',o)},isNew?null:()=>remove('legs',l.id),'<p class="verify" style="margin-top:-6px">Times and prices are seed estimates — verify before travel</p>')}
 function stopForm(s){openForm('Edit stay — '+s.name,[
   {k:'acc',l:'Accommodation name'},{k:'addr',l:'Address'},{k:'ref',l:'Booking ref',half:1},{k:'checkin',l:'Check-in time',t:'time',half:1},
-  {k:'phone',l:'Phone',t:'tel'},{k:'name',l:'Place name'},{k:'from',l:'Check-in date',t:'date',half:1},{k:'to',l:'Check-out date',t:'date',half:1},
+  {k:'phone',l:'Phone',t:'tel'},{k:'status',l:'Status',t:'select',o:STATUS.map(x=>[x,x])},{k:'name',l:'Place name'},{k:'from',l:'Check-in date',t:'date',half:1},{k:'to',l:'Check-out date',t:'date',half:1},
   {k:'lastBoat',l:'Last boat / ferry note'},{k:'notes',l:'Notes',t:'textarea'}],s,v=>upsert('stops',{...s,...v}))}
 function ideaForm(i,isNew){const ps=[...new Set(S.stops.map(s=>s.place))];openForm(isNew?'Add an idea':'Edit idea',[
   {k:'place',l:'Place',t:'select',o:ps.map(p=>[p,PLACES[p].n])},{k:'kind',l:'Type',t:'select',o:[['c','Classic'],['g','◆ Hidden gem']]},
@@ -845,6 +876,7 @@ const ACT={
   tab:v=>{L.tab=v;saveL();render();scrollTo(0,0)},
   route:v=>{setB('route',v);save()},
   realdate:()=>{L.date='';saveL();render()},
+  stayStatus:(v,id)=>{const s=byId('stops',id);s.status=STATUS[(STATUS.indexOf(s.status||'to book')+1)%3];touch(s);save()},
   status:(v,id)=>{const l=byId('legs',id);l.status=STATUS[(STATUS.indexOf(l.status)+1)%3];touch(l);save()},
   editLeg:(v,id)=>legForm({...byId('legs',id)}),
   addLeg:v=>legForm({id:uid('l'),date:v||curDate(),routes:[route()],mode:'ferry',from:'',to:'',dep:'',arr:'',operator:'',price:'',ref:'',status:'to book',who:[],notes:''},true),
@@ -878,8 +910,8 @@ const ACT={
   exShare:async()=>{const f=exportFile();try{if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:'Andaman → Hanoi data'});return}}catch(e){if(e.name==='AbortError')return}ACT.exDl()},
   exDl:()=>{const f=exportFile();const a=document.createElement('a');a.href=URL.createObjectURL(f);a.download=f.name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);toast('Saved '+f.name)},
   exCopy:()=>copyText(exportJSON()),
-  impMerge:()=>{if(!pendingImport)return;S=merge(S,pendingImport);persist();closeSheet();render();toast('Merged ✓')},
-  impReplace:()=>{if(!pendingImport)return;const o=pendingImport;delete o.exportedAt;S=o;load2();persist();closeSheet();render();toast('Replaced with imported data')},
+  impMerge:()=>{if(!pendingImport)return;const inc=pendingImport;for(const c of COLS)inc[c]=inc[c]||[];for(const m of MAPS)inc[m]=inc[m]||{};inc.del=inc.del||{};if((inc.seedV||1)<SEEDV)upgradeSeed(inc);S=merge(S,inc);persist();closeSheet();render();toast('Merged ✓')},
+  impReplace:()=>{if(!pendingImport)return;const o=pendingImport;delete o.exportedAt;S=o;load2();if((S.seedV||1)<SEEDV)upgradeSeed(S);persist();closeSheet();render();toast('Replaced with imported data')},
   rmEx:()=>{['dives','expenses'].forEach(c=>S[c].filter(x=>x.ex).forEach(x=>remove(c,x.id)));persist();render();openSettings();toast('Example entries removed')},
   resetAsk:()=>{$('#resetBox').innerHTML=`<div class="banner b-bad" style="margin-top:10px"><span class="ic">⚠️</span><div><b>Reset everything on this phone?</b>All expenses, ticks, votes, notes and bookings are replaced by the original seed data. Export first if unsure.<div class="row" style="margin-top:8px"><button class="btn" data-a="resetNo">Cancel</button><button class="btn danger armed" data-a="resetYes">Yes, reset</button></div></div></div>`},
   resetNo:()=>{$('#resetBox').innerHTML=''},
